@@ -1,7 +1,15 @@
-import React from 'react';
-import { Link } from 'react-router';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 export default function ProductCard({ product }) {
+  const [isWishlisted, setIsWishlisted] = useState(false);
+
+  useEffect(() => {
+    const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    const exists = wishlist.some((item) => item.id === product.id);
+    setIsWishlisted(exists);
+  }, [product.id]);
+
   const addToCart = (e) => {
     e.preventDefault();
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -18,37 +26,44 @@ export default function ProductCard({ product }) {
     alert('Product added to cart successfully!');
   };
 
-  const addToWishlist = (e) => {
+  const toggleWishlist = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-    const exists = wishlist.some((item) => item.id === product.id);
-
-    if (!exists) {
-      wishlist.push(product);
-      localStorage.setItem('wishlist', JSON.stringify(wishlist));
-      window.dispatchEvent(new Event('storageUpdate'));
-      alert('Added to wishlist!');
+    
+    if (isWishlisted) {
+      wishlist = wishlist.filter((item) => item.id !== product.id);
+      setIsWishlisted(false);
     } else {
-      alert('Product is already in your wishlist.');
+      wishlist.push(product);
+      setIsWishlisted(true);
     }
+
+    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+    window.dispatchEvent(new Event('storageUpdate'));
   };
 
   return (
     <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col overflow-hidden group">
-      <Link to={`/product/${product.id}`} className="relative overflow-hidden aspect-square bg-gray-100 block">
-        <img 
-          src={product.image} 
-          alt={product.title} 
-          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-        />
+      {/* Image & Wishlist Container (Separated link and button) */}
+      <div className="relative aspect-square bg-gray-100 overflow-hidden">
+        <Link to={`/product/${product.id}`} className="block w-full h-full">
+          <img 
+            src={product.image} 
+            alt={product.title} 
+            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+          />
+        </Link>
+
+        {/* Clean Flipkart-style heart icon (No background circle) */}
         <button 
-          onClick={addToWishlist}
-          className="absolute top-3 right-3 bg-white/80 hover:bg-white text-gray-700 hover:text-rose-500 p-2 rounded-full shadow-md backdrop-blur-sm transition-colors"
-          title="Add to Wishlist"
+          onClick={toggleWishlist}
+          className="absolute top-3 right-3 text-2xl drop-shadow-md hover:scale-125 transition-transform z-10 focus:outline-none"
+          title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
         >
-          ❤️
+          {isWishlisted ? '❤️' : '🤍'}
         </button>
-      </Link>
+      </div>
 
       <div className="p-5 flex flex-col flex-grow justify-between">
         <div>
