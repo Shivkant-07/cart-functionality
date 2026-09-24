@@ -5,10 +5,13 @@ export default function ProductCard({ product }) {
   const [isWishlisted, setIsWishlisted] = useState(false);
 
   useEffect(() => {
+    if (!product) return;
     const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
     const exists = wishlist.some((item) => item.id === product.id);
     setIsWishlisted(exists);
-  }, [product.id]);
+  }, [product]);
+
+  if (!product) return null;
 
   const addToCart = (e) => {
     e.preventDefault();
@@ -44,8 +47,7 @@ export default function ProductCard({ product }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col overflow-hidden group">
-      {/* Image & Wishlist Container (Separated link and button) */}
+    <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-200 flex flex-col overflow-hidden group">
       <div className="relative aspect-square bg-gray-100 overflow-hidden">
         <Link to={`/product/${product.id}`} className="block w-full h-full">
           <img 
@@ -54,8 +56,6 @@ export default function ProductCard({ product }) {
             className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
           />
         </Link>
-
-        {/* Clean Flipkart-style heart icon (No background circle) */}
         <button 
           onClick={toggleWishlist}
           className="absolute top-3 right-3 text-2xl drop-shadow-md hover:scale-125 transition-transform z-10 focus:outline-none"
@@ -67,22 +67,22 @@ export default function ProductCard({ product }) {
 
       <div className="p-5 flex flex-col flex-grow justify-between">
         <div>
-          <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md">
+          <span className="text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
             {product.fabric.split(' ')[0]}
           </span>
           <Link to={`/product/${product.id}`}>
-            <h3 className="font-bold text-gray-900 mt-2 text-lg line-clamp-1 hover:text-indigo-600 transition-colors">
+            <h3 className="font-bold text-gray-900 mt-2 text-base line-clamp-1 hover:text-amber-600 transition-colors">
               {product.title}
             </h3>
           </Link>
-          <p className="text-gray-500 text-sm mt-1 line-clamp-2">{product.description}</p>
+          <p className="text-gray-500 text-xs mt-1 line-clamp-2">{product.description}</p>
         </div>
 
         <div className="mt-5 flex items-center justify-between">
           <span className="text-xl font-extrabold text-gray-900">₹{product.price}</span>
           <button 
             onClick={addToCart}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-md hover:shadow-indigo-200 transition-all active:scale-95"
+            className="bg-amber-500 hover:bg-amber-600 text-gray-950 font-bold text-xs px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95"
           >
             Add to Cart
           </button>
